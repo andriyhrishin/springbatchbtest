@@ -22,6 +22,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+
+import java.sql.SQLException;
 
 @Configuration
 @EnableBatchProcessing
@@ -83,4 +89,26 @@ public class BatchConfiguration {
                 .build();
     }
     // end::jobstep[]
+
+    @Bean
+    public DataSource dataSource() throws SQLException {
+        final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
+        dataSource.setDriver(new org.postgresql.Driver());
+        dataSource.setUrl("jdbc:postgresql://127.0.0.1:5432/sbtest");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("mysecretpassword");
+        DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
+        return dataSource;
+    }
+    @Bean
+    public JdbcTemplate jdbcTemplate(final DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+    private DatabasePopulator databasePopulator() {
+        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-drop-postgresql.sql"));
+        populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-postgresql.sql"));
+        populator.addScript(new ClassPathResource("schema-postgresql.sql"));
+        return populator;
+    }
 }
