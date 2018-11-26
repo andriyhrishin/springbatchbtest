@@ -1,9 +1,6 @@
 package hello;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -15,23 +12,25 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.sql.SQLException;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing
+@PropertySource("classpath:application.properties")
 public class BatchConfiguration {
+
+    @Autowired
+    public DataSource dataSource;
 
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -82,7 +81,7 @@ public class BatchConfiguration {
     @Bean
     public Step step1(JdbcBatchItemWriter<Person> writer) {
         return stepBuilderFactory.get("step1")
-                .<Person, Person> chunk(10)
+                .<Person, Person>chunk(10)
                 .reader(reader())
                 .processor(processor())
                 .writer(writer)
@@ -90,25 +89,31 @@ public class BatchConfiguration {
     }
     // end::jobstep[]
 
-    @Bean
-    public DataSource dataSource() throws SQLException {
-        final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
-        dataSource.setDriver(new org.postgresql.Driver());
-        dataSource.setUrl("jdbc:postgresql://127.0.0.1:5432/sbtest");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("mysecretpassword");
-        DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
-        return dataSource;
-    }
-    @Bean
-    public JdbcTemplate jdbcTemplate(final DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
-    private DatabasePopulator databasePopulator() {
+    /*
+        @Bean
+        public DataSource dataSource(
+                @Value("${spring.datasource.url}") String url,
+                @Value("${spring.datasource.username}") String username,
+                @Value("${spring.datasource.username}") String password) {
+            final BasicDataSource dataSource = new BasicDataSource();
+            //dataSource.setDriver(new org.postgresql.Driver());
+            dataSource.setUrl(url);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+            return dataSource;
+        }
+    */
+    @PostConstruct
+    protected void initDB() {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-drop-postgresql.sql"));
         populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-postgresql.sql"));
         populator.addScript(new ClassPathResource("schema-postgresql.sql"));
-        return populator;
+        DatabasePopulatorUtils.execute(populator, dataSource);
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate() {
+        return new JdbcTemplate(dataSource);
     }
 }
