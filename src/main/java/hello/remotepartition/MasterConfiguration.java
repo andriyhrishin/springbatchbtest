@@ -10,10 +10,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.integration.config.annotation.EnableBatchIntegration;
 import org.springframework.batch.integration.partition.RemotePartitioningMasterStepBuilderFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -29,6 +26,7 @@ import org.springframework.integration.jms.dsl.Jms;
 @EnableBatchProcessing
 @EnableBatchIntegration
 @Import(value = {DataSourceConfiguration.class, BrokerConfiguration.class})
+@Profile({"master", "test"})
 public class MasterConfiguration {
 
     private static final int GRID_SIZE = 3;

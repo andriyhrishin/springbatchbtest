@@ -12,10 +12,7 @@ import org.springframework.batch.integration.config.annotation.EnableBatchIntegr
 import org.springframework.batch.integration.partition.RemotePartitioningWorkerStepBuilderFactory;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -30,6 +27,7 @@ import org.springframework.integration.jms.dsl.Jms;
 @EnableBatchProcessing
 @EnableBatchIntegration
 @Import(value = {DataSourceConfiguration.class, BrokerConfiguration.class})
+@Profile({"worker", "test"})
 public class WorkerConfiguration {
 
     private final RemotePartitioningWorkerStepBuilderFactory workerStepBuilderFactory;

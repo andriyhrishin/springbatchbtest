@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +17,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
+//@Profile({"master", "worker", "test"})
 public class DataSourceConfiguration {
 
     @Value("${spring.datasource.url}")
@@ -36,6 +38,7 @@ public class DataSourceConfiguration {
         return dataSource;
     }
 
+/*
     @PostConstruct
     protected void initDB() {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -45,9 +48,10 @@ public class DataSourceConfiguration {
         DatabasePopulatorUtils.execute(populator, dataSource());
     }
 
-//    @Bean
-//    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-//        return new JdbcTemplate(dataSource);
-//    }
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+*/
 
 }

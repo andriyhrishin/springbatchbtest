@@ -1,5 +1,6 @@
 package hello.remotepartition;
 
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -8,12 +9,13 @@ import org.springframework.test.context.ContextConfiguration;
  *
  * @author Mahmoud Ben Hassine
  */
-@ContextConfiguration(classes = {JobRunnerConfiguration.class, MasterConfiguration.class})
-public class RemotePartitioningJobWithMessageAggregationFunctionalTests extends RemotePartitioningJobFunctionalTests {
+//@ContextConfiguration(classes = {JobRunnerConfiguration.class, MasterConfiguration.class})
+//@ActiveProfiles({"test"})
+public class RemotePartitioningJobWithMessageAggregationFunctionalTests { //extends RemotePartitioningJobFunctionalTests {
 
-    @Override
-    protected Class<WorkerConfiguration> getWorkerConfigurationClass() {
-        return WorkerConfiguration.class;
-    }
+//    @Override
+//    protected Class<WorkerConfiguration> getWorkerConfigurationClass() {
+//        return WorkerConfiguration.class;
+//    }
 
 }

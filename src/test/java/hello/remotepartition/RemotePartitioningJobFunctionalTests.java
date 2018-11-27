@@ -1,5 +1,6 @@
 package hello.remotepartition;
 
+import javafx.concurrent.Worker;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.After;
 import org.junit.Assert;
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -25,7 +28,9 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @PropertySource("classpath:application.properties")
-public abstract class RemotePartitioningJobFunctionalTests {
+@ActiveProfiles({"test"})
+@ContextConfiguration(classes = {JobRunnerConfiguration.class, MasterConfiguration.class})
+public class RemotePartitioningJobFunctionalTests {
 
     private static final String BROKER_DATA_DIRECTORY = "build/activemq-data";
 
@@ -37,11 +42,11 @@ public abstract class RemotePartitioningJobFunctionalTests {
 
     private BrokerService brokerService;
 
-    private EmbeddedDatabase embeddedDatabase;
+//    private EmbeddedDatabase embeddedDatabase;
 
     private AnnotationConfigApplicationContext workerApplicationContext;
 
-    protected abstract Class<?> getWorkerConfigurationClass();
+//    protected abstract Class<?> getWorkerConfigurationClass();
 
     @Before
     public void setUp() throws Exception {
@@ -49,11 +54,15 @@ public abstract class RemotePartitioningJobFunctionalTests {
         this.brokerService.addConnector(this.brokerUrl);
         this.brokerService.setDataDirectory(BROKER_DATA_DIRECTORY);
         this.brokerService.start();
-        this.embeddedDatabase = new EmbeddedDatabaseBuilder()
-                .addScript("/org/springframework/batch/core/schema-drop-hsqldb.sql")
-                .addScript("/org/springframework/batch/core/schema-hsqldb.sql")
-                .build();
-        this.workerApplicationContext = new AnnotationConfigApplicationContext(getWorkerConfigurationClass());
+//        this.embeddedDatabase = new EmbeddedDatabaseBuilder()
+//                .addScript("/org/springframework/batch/core/schema-drop-hsqldb.sql")
+//                .addScript("/org/springframework/batch/core/schema-hsqldb.sql")
+//                .build();
+
+        workerApplicationContext = new AnnotationConfigApplicationContext();
+        workerApplicationContext.getEnvironment().setActiveProfiles("test");
+        workerApplicationContext.register( WorkerConfiguration.class );
+        workerApplicationContext.refresh();
     }
 
     @Test
@@ -70,7 +79,7 @@ public abstract class RemotePartitioningJobFunctionalTests {
     public void tearDown() throws Exception {
         this.workerApplicationContext.close();
         this.brokerService.stop();
-        this.embeddedDatabase.shutdown();
+//        this.embeddedDatabase.shutdown();
     }
 
 }

@@ -14,10 +14,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.sql.DataSource;
@@ -26,6 +23,7 @@ import javax.sql.DataSource;
 @EnableBatchProcessing
 @PropertySource("classpath:application.properties")
 @Import(value = {DataSourceConfiguration.class})
+@Profile({"gettingstartedtutorial"})
 public class GettingStartedTutorialConfiguration {
 
 
