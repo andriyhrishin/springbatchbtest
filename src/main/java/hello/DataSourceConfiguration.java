@@ -1,6 +1,8 @@
 package hello;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -16,8 +18,23 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 public class DataSourceConfiguration {
 
-    @Autowired
-    public DataSource dataSource;
+    @Value("${spring.datasource.url}")
+    private String url;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource() {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
 
     @PostConstruct
     protected void initDB() {
@@ -25,12 +42,12 @@ public class DataSourceConfiguration {
         populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-drop-postgresql.sql"));
         populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-postgresql.sql"));
         populator.addScript(new ClassPathResource("schema-postgresql.sql"));
-        DatabasePopulatorUtils.execute(populator, dataSource);
+        DatabasePopulatorUtils.execute(populator, dataSource());
     }
 
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource);
-    }
+//    @Bean
+//    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
 
 }
