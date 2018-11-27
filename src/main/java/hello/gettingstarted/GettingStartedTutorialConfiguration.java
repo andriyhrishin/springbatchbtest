@@ -1,5 +1,6 @@
-package hello;
+package hello.gettingstarted;
 
+import hello.DataSourceConfiguration;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -15,22 +16,18 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing
 @PropertySource("classpath:application.properties")
-public class BatchConfiguration {
+@Import(value = {DataSourceConfiguration.class})
+public class GettingStartedTutorialConfiguration {
 
-    @Autowired
-    public DataSource dataSource;
 
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -103,17 +100,5 @@ public class BatchConfiguration {
             return dataSource;
         }
     */
-    @PostConstruct
-    protected void initDB() {
-        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-drop-postgresql.sql"));
-        populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-postgresql.sql"));
-        populator.addScript(new ClassPathResource("schema-postgresql.sql"));
-        DatabasePopulatorUtils.execute(populator, dataSource);
-    }
 
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource);
-    }
 }
