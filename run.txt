@@ -1,0 +1,4 @@
+master: org.springframework.batch.core.launch.support.CommandLineJobRunner -Dspring.profiles.active=master hello.remotepartition.MasterConfiguration remotePartitioningJob systime=123456
+broker: hello.Application -Dspring.profiles.active=brokerservice
+broker: hello.Application -Dspring.profiles.active=worker
+
